@@ -1,43 +1,42 @@
 {
   "name": "ergebnis/php-cs-fixer-config",
-  "type": "library",
-  "description": "Provides a configuration factory and multiple rule sets for friendsofphp/php-cs-fixer.",
-  "homepage": "https://github.com/ergebnis/php-cs-fixer-config",
+  "description": "Provides a configuration factory and rule set factories for friendsofphp/php-cs-fixer.",
   "license": "MIT",
+  "type": "library",
   "authors": [
     {
       "name": "Andreas Möller",
-      "email": "am@localheinz.com"
+      "email": "am@localheinz.com",
+      "homepage": "https://localheinz.com"
     }
   ],
+  "homepage": "https://github.com/ergebnis/php-cs-fixer-config",
+  "support": {
+    "issues": "https://github.com/ergebnis/php-cs-fixer-config/issues",
+    "source": "https://github.com/ergebnis/php-cs-fixer-config",
+    "security": "https://github.com/ergebnis/php-cs-fixer-config/blob/main/.github/SECURITY.md"
+  },
   "require": {
-    "php": "^7.1",
+    "php": "~7.4.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
     "ext-filter": "*",
-    "friendsofphp/php-cs-fixer": "~2.16.0"
+    "erickskrauch/php-cs-fixer-custom-fixers": "~1.2.4",
+    "friendsofphp/php-cs-fixer": "~3.56.1",
+    "kubawerlos/php-cs-fixer-custom-fixers": "~3.21.0"
   },
   "require-dev": {
-    "ergebnis/composer-normalize": "^2.3.2",
-    "ergebnis/license": "~0.1.0",
-    "ergebnis/phpstan-rules": "~0.14.4",
-    "ergebnis/test-util": "~1.0.0",
-    "infection/infection": "~0.13.6",
-    "jangregor/phpstan-prophecy": "~0.6.2",
-    "phpstan/extension-installer": "^1.0.4",
-    "phpstan/phpstan": "~0.12.18",
-    "phpstan/phpstan-deprecation-rules": "~0.12.2",
-    "phpstan/phpstan-phpunit": "~0.12.6",
-    "phpstan/phpstan-strict-rules": "~0.12.2",
-    "phpunit/phpunit": "^7.5.20",
-    "psalm/plugin-phpunit": "~0.9.2",
-    "symfony/filesystem": "^4.4.0",
-    "vimeo/psalm": "^3.10.1"
-  },
-  "config": {
-    "platform": {
-      "php": "7.1.33"
-    },
-    "preferred-install": "dist",
-    "sort-packages": true
+    "ergebnis/composer-normalize": "^2.42.0",
+    "ergebnis/data-provider": "^3.2.0",
+    "ergebnis/license": "^2.4.0",
+    "ergebnis/phpunit-slow-test-detector": "^2.14.0",
+    "ergebnis/rector-rules": "~1.0.1",
+    "fakerphp/faker": "^1.23.1",
+    "infection/infection": "~0.26.6",
+    "phpunit/phpunit": "^9.6.19",
+    "psalm/plugin-phpunit": "~0.19.0",
+    "rector/rector": "^1.0.5",
+    "symfony/filesystem": "^5.0.0 || ^6.0.0",
+    "symfony/process": "^5.0.0 || ^6.0.0",
+    "vimeo/psalm": "^5.24.0"
   },
   "autoload": {
     "psr-4": {
@@ -49,8 +48,25 @@
       "Ergebnis\\PhpCsFixer\\Config\\Test\\": "test"
     }
   },
-  "support": {
-    "issues": "https://github.com/ergebnis/php-cs-fixer-config/issues",
-    "source": "https://github.com/ergebnis/php-cs-fixer-config"
+  "config": {
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true,
+      "ergebnis/composer-normalize": true,
+      "infection/extension-installer": true
+    },
+    "audit": {
+      "abandoned": "report"
+    },
+    "platform": {
+      "php": "7.4.33"
+    },
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "extra": {
+    "composer-normalize": {
+      "indent-size": 2,
+      "indent-style": "space"
+    }
   }
 }

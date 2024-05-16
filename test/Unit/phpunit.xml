@@ -22,14 +22,17 @@
     stopOnSkipped="false"
     verbose="true"
 >
+    <coverage includeUncoveredFiles="true" processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">../../src/</directory>
+        </include>
+    </coverage>
+    <extensions>
+        <extension class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
+    </extensions>
     <testsuites>
         <testsuite name="Unit Tests">
             <directory>.</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist addUncoveredFilesFromWhitelist="true" processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">../../src</directory>
-        </whitelist>
-    </filter>
 </phpunit>

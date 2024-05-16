@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Copyright (c) 2019-2020 Andreas Möller
+ * Copyright (c) 2019-2024 Andreas Möller
  *
  * For the full copyright and license information, please view
  * the LICENSE.md file that was distributed with this source code.
@@ -13,90 +13,98 @@ declare(strict_types=1);
 
 namespace Ergebnis\PhpCsFixer\Config\Test\Unit;
 
-use Ergebnis\PhpCsFixer\Config;
+use Ergebnis\PhpCsFixer\Config\Factory;
+use Ergebnis\PhpCsFixer\Config\Fixers;
+use Ergebnis\PhpCsFixer\Config\Name;
+use Ergebnis\PhpCsFixer\Config\PhpVersion;
+use Ergebnis\PhpCsFixer\Config\Rules;
+use Ergebnis\PhpCsFixer\Config\RuleSet;
+use Ergebnis\PhpCsFixer\Config\Test;
+use PhpCsFixer\Fixer;
 use PHPUnit\Framework;
 
 /**
- * @internal
- *
  * @covers \Ergebnis\PhpCsFixer\Config\Factory
+ *
+ * @uses \Ergebnis\PhpCsFixer\Config\Fixers
+ * @uses \Ergebnis\PhpCsFixer\Config\Name
+ * @uses \Ergebnis\PhpCsFixer\Config\PhpVersion
+ * @uses \Ergebnis\PhpCsFixer\Config\PhpVersion\Major
+ * @uses \Ergebnis\PhpCsFixer\Config\PhpVersion\Minor
+ * @uses \Ergebnis\PhpCsFixer\Config\PhpVersion\Patch
+ * @uses \Ergebnis\PhpCsFixer\Config\Rules
+ * @uses \Ergebnis\PhpCsFixer\Config\RuleSet
  */
 final class FactoryTest extends Framework\TestCase
 {
-    public function testFromRuleSetThrowsRuntimeExceptionIfCurrentPhpVersionIsLessThanTargetPhpVersion(): void
+    use Test\Util\Helper;
+
+    public function testFromRuleSetThrowsRuntimeExceptionWhenCurrentPhpVersionIsLessThanTargetPhpVersion(): void
     {
-        $targetPhpVersion = \PHP_VERSION_ID + 1;
+        $phpVersion = PhpVersion::create(
+            PhpVersion\Major::fromInt(\PHP_MAJOR_VERSION),
+            PhpVersion\Minor::fromInt(\PHP_MINOR_VERSION),
+            PhpVersion\Patch::fromInt(\PHP_RELEASE_VERSION + 1),
+        );
 
-        $ruleSet = $this->prophesize(Config\RuleSet::class);
-
-        $ruleSet
-            ->name()
-            ->shouldNotBeCalled();
-
-        $ruleSet
-            ->rules()
-            ->shouldNotBeCalled();
-
-        $ruleSet
-            ->targetPhpVersion()
-            ->shouldBeCalled()
-            ->willReturn($targetPhpVersion);
+        $ruleSet = RuleSet::create(
+            Fixers::empty(),
+            Name::fromString(self::faker()->word()),
+            $phpVersion,
+            Rules::fromArray([]),
+        );
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage(\sprintf(
-            'Current PHP version "%s" is less than targeted PHP version "%s".',
-            \PHP_VERSION_ID,
-            $targetPhpVersion
+            'Current PHP version "%s" is smaller than targeted PHP version "%s".',
+            PhpVersion::current()->toString(),
+            $phpVersion->toString(),
         ));
 
-        Config\Factory::fromRuleSet($ruleSet->reveal());
+        Factory::fromRuleSet($ruleSet);
     }
 
     /**
-     * @dataProvider providerTargetPhpVersion
-     *
-     * @param int $targetPhpVersion
+     * @dataProvider provideTargetPhpVersionLessThanOrEqualToCurrentPhpVersion
      */
-    public function testFromRuleSetCreatesConfig(int $targetPhpVersion): void
+    public function testFromRuleSetCreatesConfigWhenCurrentPhpVersionIsEqualToOrGreaterThanTargetPhpVersion(PhpVersion $targetPhpVersion): void
     {
-        $name = 'foobarbaz';
+        $customFixers = Fixers::fromFixers(
+            $this->createStub(Fixer\FixerInterface::class),
+            $this->createStub(Fixer\FixerInterface::class),
+            $this->createStub(Fixer\FixerInterface::class),
+        );
 
-        $rules = [
+        $rules = Rules::fromArray([
             'foo' => true,
             'bar' => [
-                'baz',
+                'baz' => true,
             ],
-        ];
+        ]);
 
-        $ruleSet = $this->prophesize(Config\RuleSet::class);
+        $ruleSet = RuleSet::create(
+            $customFixers,
+            Name::fromString(self::faker()->word()),
+            $targetPhpVersion,
+            $rules,
+        );
 
-        $ruleSet
-            ->name()
-            ->shouldBeCalled()
-            ->willReturn($name);
+        $config = Factory::fromRuleSet($ruleSet);
 
-        $ruleSet
-            ->rules()
-            ->shouldBeCalled()
-            ->willReturn($rules);
-
-        $ruleSet
-            ->targetPhpVersion()
-            ->shouldBeCalled()
-            ->willReturn($targetPhpVersion);
-
-        $config = Config\Factory::fromRuleSet($ruleSet->reveal());
-
-        self::assertTrue($config->getUsingCache());
+        self::assertEquals($customFixers->toArray(), $config->getCustomFixers());
         self::assertTrue($config->getRiskyAllowed());
-        self::assertSame($rules, $config->getRules());
+        self::assertSame($rules->toArray(), $config->getRules());
+        self::assertTrue($config->getUsingCache());
     }
 
-    public function providerTargetPhpVersion(): \Generator
+    /**
+     * @return \Generator<int, array{0: PhpVersion}>
+     */
+    public static function provideTargetPhpVersionLessThanOrEqualToCurrentPhpVersion(): iterable
     {
         $values = [
-            \PHP_VERSION_ID - 1,
-            \PHP_VERSION_ID,
+            PhpVersion::fromInt(\PHP_VERSION_ID - 1),
+            PhpVersion::fromInt(\PHP_VERSION_ID),
         ];
 
         foreach ($values as $value) {
@@ -104,47 +112,5 @@ final class FactoryTest extends Framework\TestCase
                 $value,
             ];
         }
-    }
-
-    public function testFromRuleSetCreatesConfigWithOverrideRules(): void
-    {
-        $name = 'foobarbaz';
-
-        $rules = [
-            'foo' => true,
-            'bar' => [
-                'baz',
-            ],
-        ];
-
-        $overrideRules = [
-            'foo' => false,
-        ];
-
-        $ruleSet = $this->prophesize(Config\RuleSet::class);
-
-        $ruleSet
-            ->name()
-            ->shouldBeCalled()
-            ->willReturn($name);
-
-        $ruleSet
-            ->rules()
-            ->shouldBeCalled()
-            ->willReturn($rules);
-
-        $ruleSet
-            ->targetPhpVersion()
-            ->shouldBeCalled()
-            ->willReturn(\PHP_VERSION_ID);
-
-        $config = Config\Factory::fromRuleSet(
-            $ruleSet->reveal(),
-            $overrideRules
-        );
-
-        self::assertTrue($config->getUsingCache());
-        self::assertTrue($config->getRiskyAllowed());
-        self::assertSame(\array_merge($rules, $overrideRules), $config->getRules());
     }
 }

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Copyright (c) 2019-2020 Andreas Möller
+ * Copyright (c) 2019-2024 Andreas Möller
  *
  * For the full copyright and license information, please view
  * the LICENSE.md file that was distributed with this source code.
@@ -20,30 +20,25 @@ final class Factory
     /**
      * Creates a configuration based on a rule set.
      *
-     * @param RuleSet $ruleSet
-     * @param array   $overrideRules
-     *
      * @throws \RuntimeException
-     *
-     * @return Config
      */
-    public static function fromRuleSet(RuleSet $ruleSet, array $overrideRules = []): Config
+    public static function fromRuleSet(RuleSet $ruleSet): Config
     {
-        if (\PHP_VERSION_ID < $ruleSet->targetPhpVersion()) {
+        $currentPhpVersion = PhpVersion::current();
+
+        if ($currentPhpVersion->isSmallerThan($ruleSet->phpVersion())) {
             throw new \RuntimeException(\sprintf(
-                'Current PHP version "%s" is less than targeted PHP version "%s".',
-                \PHP_VERSION_ID,
-                $ruleSet->targetPhpVersion()
+                'Current PHP version "%s" is smaller than targeted PHP version "%s".',
+                $currentPhpVersion->toString(),
+                $ruleSet->phpVersion()->toString(),
             ));
         }
 
-        $config = new Config($ruleSet->name());
+        $config = new Config($ruleSet->name()->toString());
 
+        $config->registerCustomFixers($ruleSet->customFixers()->toArray());
         $config->setRiskyAllowed(true);
-        $config->setRules(\array_merge(
-            $ruleSet->rules(),
-            $overrideRules
-        ));
+        $config->setRules($ruleSet->rules()->toArray());
 
         return $config;
     }

@@ -1,10 +1,10 @@
-# https://github.com/probot/settings
+# https://github.com/repository-settings/app
 
 branches:
-  - name: "master"
+  - name: "main"
 
-    # https://developer.github.com/v3/repos/branches/#remove-branch-protection
-    # https://developer.github.com/v3/repos/branches/#update-branch-protection
+    # https://docs.github.com/en/rest/reference/repos#delete-branch-protection
+    # https://docs.github.com/en/rest/reference/repos#update-branch-protection
 
     protection:
       enforce_admins: false
@@ -13,80 +13,87 @@ branches:
         require_code_owner_reviews: true
         required_approving_review_count: 1
       required_status_checks:
-        contexts:
-          - "Coding Standards (7.1, locked)"
-          - "Dependency Analysis (7.4, locked)"
-          - "Static Code Analysis (7.4, locked)"
-          - "Tests (7.1, lowest)"
-          - "Tests (7.1, locked)"
-          - "Tests (7.1, highest)"
-          - "Tests (7.2, lowest)"
-          - "Tests (7.2, locked)"
-          - "Tests (7.2, highest)"
-          - "Tests (7.3, lowest)"
-          - "Tests (7.3, locked)"
-          - "Tests (7.3, highest)"
-          - "Tests (7.4, lowest)"
-          - "Tests (7.4, locked)"
-          - "Tests (7.4, highest)"
-          - "Code Coverage (7.4, locked)"
-          - "Mutation Tests (7.4, locked)"
-          - "codecov/patch"
-          - "codecov/project"
+        checks:
+          - context: "Code Coverage (7.4, locked)"
+          - context: "Coding Standards (7.4, locked)"
+          - context: "Dependency Analysis (7.4, locked)"
+          - context: "Refactoring (7.4, locked)"
+          - context: "Security Analysis (7.4, locked)"
+          - context: "Static Code Analysis (7.4, locked)"
+          - context: "Tests (7.4, highest)"
+          - context: "Tests (7.4, locked)"
+          - context: "Tests (7.4, lowest)"
+          - context: "Tests (8.0, highest)"
+          - context: "Tests (8.0, locked)"
+          - context: "Tests (8.0, lowest)"
+          - context: "Tests (8.1, highest)"
+          - context: "Tests (8.1, locked)"
+          - context: "Tests (8.1, lowest)"
+          - context: "Tests (8.2, highest)"
+          - context: "Tests (8.2, locked)"
+          - context: "Tests (8.2, lowest)"
+          - context: "Tests (8.3, highest)"
+          - context: "Tests (8.3, locked)"
+          - context: "Tests (8.3, lowest)"
         strict: false
       restrictions:
-        apps:
-          - "dependabot-preview"
+
+        # https://docs.github.com/en/rest/reference/repos#list-branches--parameters
+
+        # Note: User, app, and team restrictions are only available for organization-owned repositories.
+        # Set to null to disable when using this configuration for a repository on a personal account.
+
+        apps: []
         teams: []
         users:
           - "ergebnis-bot"
 
-# https://developer.github.com/v3/issues/labels/#create-a-label
-# https://developer.github.com/v3/issues/labels/#update-a-label
+# https://docs.github.com/en/rest/reference/issues#create-a-label
+# https://docs.github.com/en/rest/reference/issues#update-a-label
 
 labels:
   - name: "bug"
-    color: "#ee0701"
+    color: "ee0701"
     description: ""
 
   - name: "dependency"
-    color: "#0366d6"
+    color: "0366d6"
     description: ""
 
   - name: "enhancement"
-    color: "#0e8a16"
+    color: "0e8a16"
     description: ""
 
   - name: "question"
-    color: "#cc317c"
+    color: "cc317c"
     description: ""
 
   - name: "security"
-    color: "#ee0701"
+    color: "ee0701"
     description: ""
 
-  - name: "stale"
-    color: "#eeeeee"
-    description: ""
-
-# https://developer.github.com/v3/repos/#edit
+# https://docs.github.com/en/rest/reference/repos#update-a-repository
 
 repository:
   allow_merge_commit: true
   allow_rebase_merge: false
   allow_squash_merge: false
   archived: false
-  default_branch: "master"
+  default_branch: "main"
   delete_branch_on_merge: true
-  description: ":notebook: Provides a configuration factory and multiple rule sets for friendsofphp/php-cs-fixer."
+  description: "📓 Provides a composer package with a configuration factory and rule set factories for friendsofphp/php-cs-fixer."
+  enable_automated_security_fixes: true
+  enable_vulnerability_alerts: true
+  has_discussions: false
   has_downloads: true
   has_issues: true
   has_pages: false
   has_projects: false
   has_wiki: false
+  is_template: false
   name: "php-cs-fixer-config"
   private: false
 
-  # https://developer.github.com/v3/repos/branches/#remove-branch-protection
+  # https://docs.github.com/en/rest/reference/repos#replace-all-repository-topics
 
   topics: "php-cs-fixer, configuration"
